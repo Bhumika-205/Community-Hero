@@ -1,5 +1,5 @@
 // Backend/controllers/issueController.js
-const Issue = require('../models/Issue');
+const Issue = require('../models/Issue.js');
 
 // Import the Gemini helper
 const { analyzeIssueWithAI } = require('../config/gemini');

@@ -16,12 +16,15 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
+app.use("/api/issues", issueRoutes);
+
 // Base Route to verify API is active
 app.get('/', (req, res) => {
     res.send('Community Hero API is active.');
 });
 
-    const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => {
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
