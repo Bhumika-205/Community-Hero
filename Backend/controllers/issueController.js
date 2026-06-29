@@ -13,14 +13,16 @@ const createIssue = async (req, res) => {
         }
 
         console.log('Analyzing issue with Gemini AI…');
-        const aiAnalysis = await analyzeIssueWithAI(title, description);
+        const aiAnalysis = await analyzeIssueWithAI(title, description, imageUrl);
         console.log('AI Analysis result:', aiAnalysis);
 
         const newIssue = new Issue({
             title,
-            description,
+            description: aiAnalysis.description || description,
             category:   aiAnalysis.category,
             severity:   aiAnalysis.severity,
+            priority: aiAnalysis.priority,
+            department: aiAnalysis.department,
             location:   { latitude, longitude, address },
             imageUrl,
             reportedBy: reportedBy || 'Anonymous',

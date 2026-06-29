@@ -6,6 +6,7 @@ const connectDB = require('./config/db');
 
 const issueRoutes  = require('./routes/issueRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
+const aiRoutes = require("./routes/aiRoutes");
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(express.json());
 // Routes
 app.use('/api/issues', issueRoutes);
 app.use('/api/upload', uploadRoutes);  // ← Cloudinary image upload
+app.use("/api/ai", aiRoutes);
 
 // Health check
 app.get('/', (req, res) => {

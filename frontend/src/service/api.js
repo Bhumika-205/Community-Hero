@@ -1,4 +1,3 @@
-// frontend/src/service/api.js
 import axios from 'axios';
 
 const API = axios.create({
@@ -20,20 +19,25 @@ export const upvoteIssue = async (id) => {
     return response.data;
 };
 
-/**
- * Upload an image file to Cloudinary via the backend proxy endpoint.
- * Returns the secure Cloudinary URL string.
- *
- * @param {File} file - The image file from the file input or drag-and-drop
- * @returns {Promise<string>} - Cloudinary secure URL
- */
 export const uploadImage = async (file) => {
     const formData = new FormData();
     formData.append('image', file);
 
     const response = await API.post('/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
     });
 
-    return response.data.url; // Cloudinary secure_url returned by backend
+    return response.data.url;
+};
+
+export const analyzeImage = async (imageUrl) => {
+    const response = await API.post('/ai/analyze', {
+        imageUrl,
+        title: '',
+        description: '',
+    });
+
+    return response.data;
 };

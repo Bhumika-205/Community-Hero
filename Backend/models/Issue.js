@@ -20,6 +20,13 @@ const IssueSchema = new mongoose.Schema({
     enum: ['Low', 'Medium', 'High', 'Unknown'],
     default: 'Unknown'
     },
+    priority : {
+        type : Number,
+        default : 0
+    },
+    department : {
+        type : String
+    },
     location: {
         latitude: { type: Number, required: true },
         longitude: { type: Number, required: true },
