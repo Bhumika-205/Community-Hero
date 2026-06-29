@@ -2,11 +2,10 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import { Brain } from 'lucide-react';
-import { createIssue, uploadImage } from '../service/api';
+import { createIssue, uploadImage, analyzeImage } from '../service/api';
 import { geocodeQuery, reverseGeocode, shortAddress } from '../utils/geo';
 import { severityIcon, selectedPin } from '../utils/mapIcons';
 import { severityBadge, statusBadge } from '../utils/constants';
-import { createIssue, uploadImage, analyzeImage } from '../service/api';
 import ReportForm from './ReportForm';
 import IssueCard from './IssueCard';
 
@@ -223,12 +222,7 @@ export default function LiveMap({ issues, onIssueCreated, onUpvote, userName, on
                     {lat && lon && (
                         <Marker position={[lat, lon]} icon={selectedPin()}>
                             <Popup>
-                                <div className="text-xs font-semibold text-slate-700">
-                                    📍 Selected Location<br />
-                                    <span className="text-slate-400 font-normal">
-                                        {shortAddress(address, 2)}
-                                    </span>
-                                </div>
+                                {/* ... popup content ... */}
                             </Popup>
                         </Marker>
                     )}
@@ -237,9 +231,9 @@ export default function LiveMap({ issues, onIssueCreated, onUpvote, userName, on
                     {issues.map(issue => (
                         <Marker
                             key={issue._id}
-                            position={[issue.location.latitude, issue.location.longitude]}
-                            icon={severityIcon(issue.severity)}
-                        >
+                            position={[issue.location?.latitude || issue.latitude, issue.location?.longitude || issue.longitude]}
+                            icon={severityIcon(issue.severity)}>
+                                
                             <Popup>
                                 <div className="max-w-[220px] text-sm font-sans">
                                     {issue.imageUrl && (

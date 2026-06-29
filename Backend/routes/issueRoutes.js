@@ -1,17 +1,20 @@
-// Backend/routes/issueRoutes.js
 const express = require('express');
 const router = express.Router();
-const {
-    createIssue,
-    getIssues,
-    getIssueById,
-    voteIssue
-} = require('../controllers/issueController');
+const issueController = require('../controllers/issueController');
 
-// Routes mapping
-router.post('/', createIssue);
-router.get('/', getIssues);
-router.get('/:id', getIssueById);
-router.put('/:id/vote', voteIssue);
+// Base routes
+router.post('/', issueController.createIssue);
+router.get('/', async (req, res) => {
+    try {
+        const Issue = require('../models/Issue');
+        const issues = await Issue.find().sort({ createdAt: -1 });
+        res.json(issues);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+router.get('/analytics/summary', issueController.getAnalyticsSummary);
+router.put('/:id/upvote', issueController.upvoteIssue);
 
 module.exports = router;

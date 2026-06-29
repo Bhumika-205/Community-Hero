@@ -1,29 +1,44 @@
-// src/utils/mapIcons.js
 import L from 'leaflet';
-import markerIcon   from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
-// Fix default Leaflet icon broken by Vite/webpack
-export const DefaultIcon = L.icon({
-    iconUrl:    markerIcon,
-    shadowUrl:  markerShadow,
-    iconSize:   [25, 41],
-    iconAnchor: [12, 41],
-});
-L.Marker.prototype.options.icon = DefaultIcon;
+// Base options for standard Leaflet pin shape
+const iconAnchor = [12, 41];
+const popupAnchor = [1, -34];
+const shadowUrl = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png';
+const shadowSize = [41, 41];
 
-const pinSVG = (fill) => `
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 41" width="25" height="41">
-  <path d="M12.5 0C5.6 0 0 5.6 0 12.5c0 9.4 12.5 28.5 12.5 28.5S25 21.9 25 12.5C25 5.6 19.4 0 12.5 0z" fill="${fill}"/>
-  <circle cx="12.5" cy="12.5" r="5" fill="white"/>
-</svg>`;
-
-const divOptions = { className: '', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34] };
-
-export const severityIcon = (severity) => {
-    const color = severity === 'High' ? '#ef4444' : severity === 'Medium' ? '#f59e0b' : '#22c55e';
-    return L.divIcon({ html: pinSVG(color), ...divOptions });
+// 1. Selected Location Pin (Indigo/Blue)
+export const selectedPin = () => {
+  return new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-violet.png',
+    shadowUrl,
+    iconSize: [25, 41],
+    iconAnchor,
+    popupAnchor,
+    shadowSize
+  });
 };
 
-export const selectedPin = () =>
-    L.divIcon({ html: pinSVG('#4f46e5'), ...divOptions });
+// 2. Severity-based Icons (Red, Yellow/Orange, Green)
+export const severityIcon = (severity) => {
+  let color = 'green'; // Default/Low fallback
+
+  if (severity) {
+    const normalized = severity.toLowerCase();
+    if (normalized === 'high' || normalized === 'critical') {
+      color = 'red';
+    } else if (normalized === 'medium') {
+      color = 'orange'; // Looks amber/yellow on the map layout
+    } else if (normalized === 'low') {
+      color = 'green';
+    }
+  }
+
+  return new L.Icon({
+    iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`,
+    shadowUrl,
+    iconSize: [25, 41],
+    iconAnchor,
+    popupAnchor,
+    shadowSize
+  });
+};
