@@ -3,7 +3,9 @@
 require("dotenv").config();
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(
+    process.env.GEMINI_API_KEY
+);
 
 const analyzeIssueWithAI = async (
     title,
@@ -11,30 +13,33 @@ const analyzeIssueWithAI = async (
     imageUrl
 ) => {
     try {
-        const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash",
-            generationConfig: {
-                responseMimeType: "application/json",
-            },
-        });
+        const model =
+            genAI.getGenerativeModel({
+                model: "gemini-1.5-flash",
+                generationConfig: {
+                    responseMimeType:
+                        "application/json",
+                },
+            });
 
         const prompt = `
-You are an AI civic issue analyzer.
+You are an expert civic issue analyzer.
 
-Analyze the following community issue.
+Analyze the issue information.
 
 Title:
-${title}
+${title || "Not provided"}
 
 Description:
-${description}
+${description || "Not provided"}
 
 Image URL:
-${imageUrl || "No image provided"}
+${imageUrl || "Not provided"}
 
 Return ONLY valid JSON.
 
 {
+  "title": "",
   "category": "",
   "severity": "",
   "priority": 0,
@@ -60,40 +65,71 @@ Severity:
 Priority:
 - Integer from 1 to 100
 
-Department examples:
-- Road Maintenance Department
-- Electricity Department
-- Water Board
-- Municipal Waste Department
-- Parks & Recreation Department
-- Municipal Corporation
+Generate:
+- A short title
+- A professional description
+- Department responsible
 
-Description:
-Generate a short professional issue summary in 1-2 sentences.
+Example:
+
+{
+  "title":"Overflowing Garbage Dump",
+  "category":"Waste Management",
+  "severity":"High",
+  "priority":85,
+  "department":"Municipal Waste Department",
+  "description":"Large accumulation of garbage observed near a public area causing hygiene concerns."
+}
 `;
 
-        const result = await model.generateContent(prompt);
+        const result =
+            await model.generateContent(
+                prompt
+            );
 
-        let responseText = result.response.text().trim();
-
-        if (responseText.startsWith("```")) {
-            responseText = responseText
-                .replace(/^```json/, "")
-                .replace(/```$/, "")
+        let responseText =
+            result.response
+                .text()
                 .trim();
+
+        if (
+            responseText.startsWith(
+                "```"
+            )
+        ) {
+            responseText =
+                responseText
+                    .replace(
+                        /^```json/,
+                        ""
+                    )
+                    .replace(
+                        /```$/,
+                        ""
+                    )
+                    .trim();
         }
 
-        const parsedData = JSON.parse(responseText);
+        const parsedData =
+            JSON.parse(responseText);
 
         return {
+            title:
+                parsedData.title ||
+                title ||
+                "Community Issue",
+
             category:
-                parsedData.category || "Others",
+                parsedData.category ||
+                "Others",
 
             severity:
-                parsedData.severity || "Low",
+                parsedData.severity ||
+                "Low",
 
             priority:
-                parsedData.priority || 50,
+                parsedData.priority ||
+                50,
 
             department:
                 parsedData.department ||
@@ -101,7 +137,8 @@ Generate a short professional issue summary in 1-2 sentences.
 
             description:
                 parsedData.description ||
-                description,
+                description ||
+                "Issue reported by citizen.",
         };
     } catch (error) {
         console.error(
@@ -110,15 +147,24 @@ Generate a short professional issue summary in 1-2 sentences.
         );
 
         return {
+            title:
+                title ||
+                "Community Issue",
+
             category: "Others",
+
             severity: "Low",
+
             priority: 50,
-            department: "Municipal Corporation",
-            description,
+
+            department:
+                "Municipal Corporation",
+
+            description:
+                description ||
+                "Issue reported by citizen.",
         };
     }
 };
 
-module.exports = {
-    analyzeIssueWithAI,
-};
+module.exports = { analyzeIssueWithAI };

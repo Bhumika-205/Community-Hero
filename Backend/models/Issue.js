@@ -28,9 +28,18 @@ const IssueSchema = new mongoose.Schema({
         type : String
     },
     location: {
-        latitude: { type: Number, required: true },
-        longitude: { type: Number, required: true },
-        address: { type: String }
+        latitude: {
+            type: Number,
+            default: 0
+        },
+        longitude: {
+            type: Number,
+            default: 0
+        },
+        address: {
+            type: String,
+            required: true
+        }
     },
     status: {
         type: String,

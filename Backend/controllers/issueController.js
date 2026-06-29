@@ -6,27 +6,44 @@ const { analyzeIssueWithAI } = require('../config/gemini');
 // @route   POST /api/issues
 const createIssue = async (req, res) => {
     try {
-        const { title, description, latitude, longitude, address, imageUrl, reportedBy } = req.body;
+        const {
+            title,
+            description,
+            latitude,
+            longitude,
+            address,
+            imageUrl,
+            reportedBy
+        } = req.body;
 
-        if (!title || !description || !latitude || !longitude) {
-            return res.status(400).json({ message: 'Please provide title, description, and location coordinates.' });
+        if (!address) {
+            return res.status(400).json({
+                message: "Please provide an address."
+            });
         }
 
-        console.log('Analyzing issue with Gemini AI…');
+        console.log("Analyzing issue with Gemini AI...");
         const aiAnalysis = await analyzeIssueWithAI(title, description, imageUrl);
         console.log('AI Analysis result:', aiAnalysis);
 
         const newIssue = new Issue({
-            title,
-            description: aiAnalysis.description || description,
-            category:   aiAnalysis.category,
-            severity:   aiAnalysis.severity,
+            title: aiAnalysis.title || title || "Community Issue",
+
+            description: aiAnalysis.description || description || "Issue reported by citizen.",
+
+            category: aiAnalysis.category,
+
+            severity: aiAnalysis.severity,
+
             priority: aiAnalysis.priority,
+
             department: aiAnalysis.department,
-            location:   { latitude, longitude, address },
+
+            location: { latitude: latitude || 0, longitude: longitude || 0, address },
+
             imageUrl,
-            reportedBy: reportedBy || 'Anonymous',
-        });
+            reportedBy: reportedBy || "Anonymous",
+    });
 
         const savedIssue = await newIssue.save();
         res.status(201).json(savedIssue);

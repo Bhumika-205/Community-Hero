@@ -6,6 +6,7 @@ import { createIssue, uploadImage } from '../service/api';
 import { geocodeQuery, reverseGeocode, shortAddress } from '../utils/geo';
 import { severityIcon, selectedPin } from '../utils/mapIcons';
 import { severityBadge, statusBadge } from '../utils/constants';
+import { createIssue, uploadImage, analyzeImage } from '../service/api';
 import ReportForm from './ReportForm';
 import IssueCard from './IssueCard';
 
@@ -31,6 +32,9 @@ export default function LiveMap({ issues, onIssueCreated, onUpvote, userName, on
     const [imagePreview, setImagePreview] = useState('');
     const [imgUploading, setImgUploading] = useState(false);
     const [submitting, setSubmitting]     = useState(false);
+
+    const [aiAnalysis, setAiAnalysis] = useState(null);
+    const [aiLoading, setAiLoading] = useState(false);
 
     // Location search
     const [locQuery, setLocQuery]         = useState('');
@@ -93,21 +97,53 @@ export default function LiveMap({ issues, onIssueCreated, onUpvote, userName, on
     }
 
     // ── Cloudinary upload ──────────────────────────────────────────────────
-    async function handleImageFile(file) {
+    // async function handleImageFile(file) {
+    //     if (!file) return;
+    //     setImagePreview(URL.createObjectURL(file));
+    //     setImgUploading(true);
+    //     try { setImageUrl(await uploadImage(file)); }
+    //     catch { alert('Upload failed. Check Cloudinary keys in .env'); setImagePreview(''); setImageUrl(''); }
+    //     finally { setImgUploading(false); }
+    // }
+        async function handleImageFile(file) {
         if (!file) return;
         setImagePreview(URL.createObjectURL(file));
         setImgUploading(true);
-        try { setImageUrl(await uploadImage(file)); }
-        catch { alert('Upload failed. Check Cloudinary keys in .env'); setImagePreview(''); setImageUrl(''); }
-        finally { setImgUploading(false); }
+        try {
+            const uploadedUrl = await uploadImage(file);
+            setImageUrl(uploadedUrl);
+            setAiLoading(true);
+            const analysis = await analyzeImage(uploadedUrl);
+            console.log("AI RESULT:", analysis);
+            setAiAnalysis(analysis);
+            if (analysis.title) {
+                setTitle(analysis.title);
+            }
+            if (analysis.description) {
+                setDescription(analysis.description);
+            }
+        } catch (err) {
+            console.error(err);
+            alert(
+                'Image upload or AI analysis failed.'
+            );
+            setImagePreview('');
+            setImageUrl('');
+        } finally {
+            setImgUploading(false);
+            setAiLoading(false);
+        }
     }
 
     // ── Submit ─────────────────────────────────────────────────────────────
     async function handleSubmit(e) {
         e.preventDefault();
-        if (!title.trim() || !description.trim()) { alert('Please fill in title and description.'); return; }
-        if (!lat || !lon) { alert('Please pick a location — search a city or tap the map.'); return; }
-
+        if (!address.trim()) {
+            alert(
+                "Please choose a location."
+            );
+            return;
+        }
         setSubmitting(true);
         try {
             const saved = await createIssue({
