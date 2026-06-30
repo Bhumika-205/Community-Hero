@@ -6,9 +6,9 @@ exports.createIssue = async (req, res) => {
   try {
     const { title, description, imageUrl, latitude, longitude } = req.body;
 
-    if (!title || !description || !imageUrl || !latitude || !longitude) {
-      return res.status(400).json({ message: "All fields are required." });
-    }
+    if (!title || !description || !latitude || !longitude) {
+    return res.status(400).json({ message: "Required reporting fields are missing." });
+}
 
     // 1. Initialize Gemini Model (Using Google AI Studio)
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
