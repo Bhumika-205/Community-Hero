@@ -74,7 +74,7 @@ export default function IssueCard({ issue, onUpvote }) {
                         <ThumbsUp className="h-3.5 w-3.5" /> Verify (+5 XP)
                     </button>
                     <span className="text-xs font-bold text-slate-400 bg-slate-50 px-2.5 py-1 rounded-full">
-                        {issue.upvotes} vote{issue.upvotes !== 1 ? 's' : ''}
+                        {issue.upvotes || 0} vote{(issue.upvotes || 0) !== 1 ? 's' : ''}
                     </span>
                 </div>
             </div>

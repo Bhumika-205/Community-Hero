@@ -64,34 +64,43 @@ exports.createIssue = async (req, res) => {
   }
 };
 
-// 3. QUICK HACKATHON ADDITION: Upvote/Verify Route
+//2. up votes
 exports.upvoteIssue = async (req, res) => {
   try {
     const { id } = req.params;
-    const { uniqueIdentifier } = req.body; // Can be a temporary string/IP from frontend
 
     const issue = await Issue.findById(id);
-    if (!issue) return res.status(404).json({ message: "Issue not found" });
 
-    if (issue.upvotes.includes(uniqueIdentifier)) {
-      // Remove upvote if clicked again (Toggle)
-      issue.upvotes = issue.upvotes.filter(item => item !== uniqueIdentifier);
-    } else {
-      issue.upvotes.push(uniqueIdentifier);
-      // Automatically boost priority if community engagement is high!
-      if (issue.upvotes.length >= 5 && issue.priority !== 'High') {
-         issue.priority = 'High';
-      }
+    if (!issue) {
+      return res.status(404).json({ message: "Issue not found" });
+    }
+
+    issue.upvotes += 1;
+
+    if (issue.upvotes >= 5) {
+      issue.status = "Verified";
+    }
+
+    if (issue.upvotes >= 5 && issue.priority !== "High") {
+      issue.priority = "High";
     }
 
     await issue.save();
-    res.status(200).json({ success: true, upvotesCount: issue.upvotes.length, priority: issue.priority });
+
+    res.status(200).json({
+      success: true,
+      upvotesCount: issue.upvotes,
+      priority: issue.priority,
+      status: issue.status
+    });
+
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Error voting" });
   }
 };
 
-// 4. QUICK HACKATHON ADDITION: Analytics Dashboard Summary
+// 4.  Analytics Dashboard Summary
 exports.getAnalyticsSummary = async (req, res) => {
   try {
     const totalIssues = await Issue.countDocuments();

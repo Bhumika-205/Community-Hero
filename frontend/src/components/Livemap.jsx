@@ -165,10 +165,15 @@ export default function LiveMap({ issues, onIssueCreated, onUpvote, userName, on
         }
     }
 
-    const mapCenter = issues.length > 0
-        ? [issues[0].location.latitude, issues[0].location.longitude]
-        : [20.5937, 78.9629];
-    const mapZoom = issues.length > 0 ? 12 : 5;
+    const firstIssue = issues?.[0];
+
+    const mapCenter =
+    firstIssue && (firstIssue.latitude || firstIssue.location?.latitude)
+    ? [firstIssue.latitude ?? firstIssue.location?.latitude,
+        firstIssue.longitude ?? firstIssue.location?.longitude,]
+    : [20.5937, 78.9629];
+
+    const mapZoom = Array.isArray(issues) && issues.length > 0 ? 12 : 5;
 
     return (
         <main className="max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-4rem)] overflow-hidden">

@@ -242,10 +242,25 @@ async function seed() {
 
         // Insert seeded data
         const inserted = await Issue.insertMany(
-            SEED_ISSUES.map(issue => ({
-                ...issue,
-                createdAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000), // random within last 7 days
-            }))
+        SEED_ISSUES.map(issue => ({
+            title: issue.title,
+            description: issue.description,
+            imageUrl: issue.imageUrl,
+
+            latitude: issue.location.latitude,
+            longitude: issue.location.longitude,
+
+            severity: issue.severity,
+            category: issue.category,
+            status: issue.status,
+            upvotes: issue.upvotes,
+            
+            suggestedAction: "Awaiting inspection",
+
+            createdAt: new Date(
+            Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000
+            )
+        }))
         );
 
         console.log(`🌱 Seeded ${inserted.length} issues successfully`);

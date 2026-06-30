@@ -9,11 +9,11 @@ const issueSchema = new mongoose.Schema({
   severity: { type: String, enum: ['Low', 'Medium', 'High', 'Critical'], default: 'Medium' },
   priority: { type: String, enum: ['Low', 'Medium', 'High'], default: 'Medium' },
   
-  // --- NEW HACKATHON EVALUATION FIELDS ---
+
   category: { type: String, default: 'General' }, 
   suggestedAction: { type: String }, // AI generated instant fix recommendation
-  status: { type: String, enum: ['Reported', 'Verified', 'In-Progress', 'Resolved'], default: 'Reported' },
-  upvotes: [{ type: String }], // Array of user IPs or user IDs to validate the issue
+  status: { type: String, enum: ['Reported', 'Pending','Verified', 'In Progress', 'Resolved'], default: 'Reported' },
+  upvotes: { type: Number, default : 0}, 
   // ----------------------------------------
   
   createdAt: { type: Date, default: Date.now }
