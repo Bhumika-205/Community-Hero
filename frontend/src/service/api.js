@@ -1,7 +1,9 @@
 import axios from 'axios';
 
 const API = axios.create({
-    baseURL: 'http://localhost:5000/api',
+    baseURL: process.env.NODE_ENV === 'production' 
+        ? 'https://your-google-cloud-deployed-url.com/api' 
+        : 'http://localhost:5000/api',
 });
 
 export const getIssues = async () => {
@@ -14,8 +16,8 @@ export const createIssue = async (issueData) => {
     return response.data;
 };
 
-export const upvoteIssue = async (id) => {
-    const response = await API.put(`/issues/${id}/vote`);
+export const upvoteIssue = async (id, uniqueIdentifier) => {
+    const response = await API.put(`/issues/${id}/upvote`, { uniqueIdentifier });
     return response.data;
 };
 
